@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt_BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Web Bot</title>
+</head>
+
+<body>
+    <main class="m-auto max-w-xl">
+        <div class="flex-1 p-4 overflow-y-auto w-full">
+            <div id="chat-window" class="flex flex-col gap-4"></div>
+        </div>
+        <form id="message-form" class="bg-white p-4 flex items-center w-full sticky bottom-0 ">
+            <input type="text" name="message" id="message-input"
+                placeholder="Escreva algo para o Bot"
+                class="border-gray-300 border rounded-l-full px-4 py-2 flex-1 mr-2">
+            <button type="submit" id="send-button"
+                class="bg-blue-500 text-white px-4 py-2 rounded-r-full">Enviar</button>
+        </form>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+
+    <script>
+        class ChatController {
+            constructor() {
+                this.url = "http://localhost:8080/server";
+                this.send();
+            }
+
+            static createClientContainerMessage(textMessage) {
+                const messageContainer = $("<div>", {
+                    class: "flex flex-col items-end"
+                })
+                const messageLabel = $("<span>", {
+                    class: "text-sm text-gray-500",
+                    text: "Você"
+                })
+                const message = $("<div>", {
+                    class: "bg-blue-300 rounded-lg shadow-md p-4 mt-2 max-w-sm break-words",
+                    text: textMessage
+                })
+                messageContainer.append(messageLabel, message);
+                return messageContainer;
+            }
+
+            static createServerContainerMessage(textMessage) {
+                const messageContainer = $("<div>", {
+                    class: "flex flex-col items-start"
+                })
+                const messageLabel = $("<span>", {
+                    class: "text-sm text-gray-500",
+                    text: "Bot"
+                })
+                const message = $("<div>", {
+                    class: "bg-gray-300 rounded-lg shadow-md p-4 mt-2 max-w-sm break-words",
+                    text: textMessage
+                })
+                messageContainer.append(messageLabel, message);
+                return messageContainer;
+            }
+
+            static addMessageToChat(message, messageType) {
+                let messageContainer;
+                switch (messageType) {
+                    case "client":
+                        messageContainer = ChatController.createClientContainerMessage(message);
+                        break;
+                    case "server":
+                        messageContainer = ChatController.createServerContainerMessage(message);
+                        break;
+                    default:
+                        throw new Error("Tipo da menssagem não especificado");
+                        break
+                }
+                $('#chat-window').append(messageContainer);
+                $('#chat-window').animate({ scrollTop: $('#chat-window').prop("scrollHeight") }, 500);
+            }
+
+            send() {
+                $("#message-form").on("submit", (event) => {
+                    event.preventDefault();
+                    const message = $("#message-input").val();
+                    ChatController.addMessageToChat(message, "client");
+                    fetch(this.url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: message })
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Erro ao enviar mensagem');
+                        }
+                        return response.text();
+                    }).then((message) => {
+                        ChatController.addMessageToChat(message, "server");
+                    }).catch((error) => {
+                        console.error('Erro ao enviar mensagem:', error);
+                        $('#chat-window').append('<div class="mb-2"><p class="text-red-700">Erro ao enviar mensagem.</p></div>');
+                    });
+
+                    $('#message-input').val(null);
+                });
+            }
+        }
+
+        $(() => {
+            const chatController = new ChatController();
+        });
+    </script>
+</body>
+
+</html>
