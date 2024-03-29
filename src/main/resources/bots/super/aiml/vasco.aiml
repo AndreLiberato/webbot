@@ -1,0 +1,14 @@
+<aiml>
+	<category>
+		<pattern>Me fale sobre o vasco</pattern>
+		<template>O Club de Regatas Vasco da Gama, mais conhecido como Vasco da Gama ou simplesmente Vasco, cujo acrônimo é CRVG, é uma entidade sócio-poliesportiva brasileira com sede na cidade do Rio de Janeiro, fundada em 21 de agosto de 1898 por um grupo de remadores.</template>
+	</category>
+	<category>
+		<pattern>WHAT IS CHAT BOT</pattern>
+		<template>Chatbot is a computer program designed to simulate conversation with human users, especially over the Internet.</template>
+	</category>
+	<category>
+		<pattern>WHAT IS INDIA</pattern>
+		<template>wonderful country.</template>
+	</category>
+</aiml>
